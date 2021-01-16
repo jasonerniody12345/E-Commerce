@@ -18,6 +18,7 @@ create (req, res) {
         })
     })
     .catch(err => {
+        console.log(err)
         if (err.errors.description) {
             res.status(400).json({
                 message: err.errors.description.message
@@ -76,7 +77,6 @@ delete (req, res) {
 get (req, res) {
     Product.find({
     })
-    .populate("user")
     .then(getItem => {
         console.log("Displaying all listed item")
         res.status(201).json({
@@ -94,7 +94,6 @@ get (req, res) {
 getOne (req, res) {
     Product.findById(req.params.id,{
     })
-    .populate("user")
     .then(getItem => {
         console.log("Displaying specific listed item")
         res.status(201).json({
@@ -108,15 +107,33 @@ getOne (req, res) {
             })
         })
     },
+
+getByName (req, res) {
+    console.log(req.query.productName)
+    Product.findOne(req.query.productName, {
+    })
+    .then(getName => {
+        console.log("Displaying searched item")
+        res.status(201).json({
+            getName
+        })
+    })
+    .catch (err => {
+        console.log(err)
+        res.status(500).json({
+            message: "Internal server error"
+        })
+    })
+
+},
     
 sortByDescend (req, res) {
-    Product.find({
-    })
-    .then(sortItem => {
-        sortItem.sort((a,b) => a - b)
-        console.log("Displaying descended price")
+    Product.find({   
+    }), null, {sort: "price: -price"}
+    .then(descend => {
+        console.log("Sort price descending order")
         res.status(201).json({
-            sortItem
+            descend
         })
     })
     .catch(err => {
@@ -129,14 +146,11 @@ sortByDescend (req, res) {
 
 sortByAscend (req, res) {
     Product.find({
-    })
-    const storage = []
-    .then(sortItem => {
-        sortItem.sort((a,b) => b - a)
-        storage.push(sortItem)
+    }).sort("price: ascend")
+    .then(ascend => {
         console.log("Displaying ascended price")
         res.status(201).json({
-            sortItem
+            ascend
         })
     })
     .catch(err => {

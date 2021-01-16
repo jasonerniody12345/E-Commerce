@@ -7,6 +7,8 @@ module.exports = {
     login (req, res){
         User.findOne({email: req.body.email})
         .then(login => {
+            console.log(req.body.password)
+            console.log(login.password)
             if (bcrypt.compareSync(req.body.password, login.password) === true) {
                 const token = jwt.sign ({...login}, env.process.KEY)
                 console.log("Sucessfully login")
@@ -53,6 +55,25 @@ module.exports = {
         })
     },
 
+    getOne (req, res) {
+        User.findById(req.params.id, {
+        })
+        .populate("")
+        .then(userOne => {
+            console.log("Displaying specific user")
+            res.status(201).json({
+                message: "Display specific user",
+                userOne
+            })
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                message: "Internal server error"
+            })
+        })
+    },
+
     register (req, res) {
         User.create({
             first_name: req.body.first_name,
@@ -69,7 +90,7 @@ module.exports = {
             })
         })
         .catch(err => {
-            console.log(req.body.first_name)
+            console.log(err)
             if (err.errors.email) {
                 res.status(400).json({
                     message: err.errors.email.message
@@ -126,15 +147,26 @@ module.exports = {
     },
 
     AddToCart (req, res) {
-        User.findById(req.body.ProductId, {
-            $push: {
-                cart: req.body.cart
+        Product.findById(req.body.productId)
+        .then (foundProduct => {
+            const productStock = foundProduct.stock - 1
+            if (cart.stock > 0){
+                User.findByIdAndUpdate (req.params.id, { 
+                    $push: {
+                        cart
+                    }
+                })
+                .then (updateUser => {
+                    Product.findByIdAndUpdate (req.params.id, {
+                        stock : productStock
+                    })
+                })
             }
-        }, {new: true})
-        .then (cart => {
-            res.status(200).json({
-                cart
-            })
+            else {
+                res.status(401).json({
+                    message: "Product is out of stock"
+                })
+            }
         })
         .catch(err => {
             console.log(err)

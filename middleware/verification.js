@@ -7,6 +7,7 @@ module.exports = {
     authenticate (req, res, next) {
         
         try {
+            console.log(key._doc)
             const key = jwt.verify(req.headers.token, env.process.KEY)
             req.userID = key._doc._id
             next()
@@ -48,10 +49,19 @@ module.exports = {
     adminAuthorize (req, res, next) {
 
         try {
-            User.findById(req.params.id, {
+            User.findById(access.id, {
             })
+            console.log(access.id)
+            const access = jwt.verify(req.headers.token, env.process.KEY)
             .then(adminData => {
-                const access = jwt.verify(req.headers.token, env.process.KEY)
+                if(adminData.user === access.id){
+                    next()
+                }
+                else {
+                    res.status(401).json({
+                        message: "Unauthorized"
+                    })
+                }
             })
             next()
         }

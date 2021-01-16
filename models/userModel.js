@@ -25,6 +25,11 @@ const userSchema = new Schema({
     },
     isAdmin: {
         type: Boolean
+    },
+    password: {
+        type: String,
+        required: true,
+        minlength: [6, "Password minimum length is 6"]
     }
     
 })
@@ -34,8 +39,7 @@ userSchema.pre("save", function (next) {
         const salt = bcrypt.genSaltSync(10)
         const hash = bcrypt.hashSync(this.password, salt)
         this.password = hash
-
-        this.admin = true
+        this.admin = false
         
         next()
     }
