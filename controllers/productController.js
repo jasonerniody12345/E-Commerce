@@ -1,3 +1,4 @@
+const { QueryCursor } = require("mongoose")
 const Product = require("../models/productModel")
 
 module.exports = {
@@ -109,9 +110,11 @@ getOne (req, res) {
     },
 
 getByName (req, res) {
-    console.log(req.query.productName)
-    Product.findOne(req.query.productName, {
-    })
+    // console.log(req.query.productName)
+    console.log(req.query.name)
+    //model.findOne({name: new RegExp('^'+name+'$', "i")}, function(err, doc) {
+    // Product.find({name: new RegExp(req.query.name, "i")}), query = {description: regex}
+    Product.find({name: /^req.query.name/})
     .then(getName => {
         console.log("Displaying searched item")
         res.status(201).json({
@@ -128,9 +131,9 @@ getByName (req, res) {
 },
     
 sortByDescend (req, res) {
-    Product.find({   
-    }), null, {sort: "price: -price"}
+    Product.find({}).sort("-price")
     .then(descend => {
+        console.log(descend)
         console.log("Sort price descending order")
         res.status(201).json({
             descend
@@ -145,8 +148,7 @@ sortByDescend (req, res) {
 },
 
 sortByAscend (req, res) {
-    Product.find({
-    }).sort("price: ascend")
+    Product.find({}).sort("price")
     .then(ascend => {
         console.log("Displaying ascended price")
         res.status(201).json({

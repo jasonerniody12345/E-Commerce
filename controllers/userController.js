@@ -1,4 +1,5 @@
 const User = require("../models/userModel")
+const Product = require("../models/productModel")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt")
 
@@ -6,15 +7,23 @@ module.exports = {
 
     login (req, res){
         User.findOne({email: req.body.email})
-        .then(login => {
-            console.log(req.body.password)
-            console.log(login.password)
-            if (bcrypt.compareSync(req.body.password, login.password) === true) {
-                const token = jwt.sign ({...login}, env.process.KEY)
+        .then(userLogin => {
+            console.log(typeof(req.body.email))
+            console.log(typeof(req.body.password))
+            console.log(err.errors)
+            console.log(userLogin)
+            console.log(userLogin.password)
+            if (bcrypt.compareSync(req.body.password, userLogin.password) === true) {
+                const token = jwt.sign ({...userLogin}, env.process.KEY)
                 console.log("Sucessfully login")
                 res.status(201).json({
                     message: "Sucessfully login",
                     accessToken: token
+                })
+            }
+            else {
+                res.status(401).json({
+                    message: "password or email is invalid"
                 })
             }
         })
@@ -38,9 +47,6 @@ module.exports = {
         User.find({
         })
         .then(user => {
-            for (var i = 0; i < user.length; i++) {
-                user[i].fullName = user[i].first_name + user[i].last_name
-            }
             console.log("Displaying all the registered user")
             res.status(201).json({
                 message: "Displaying all the registered user",
@@ -58,8 +64,11 @@ module.exports = {
     getOne (req, res) {
         User.findById(req.params.id, {
         })
-        .populate("")
+        .populate("product")
         .then(userOne => {
+            for (var i = 0; i < user.length; i++) {
+                user[i].fullName = user[i].first_name + user[i].last_name
+            }
             console.log("Displaying specific user")
             res.status(201).json({
                 message: "Display specific user",
@@ -147,7 +156,8 @@ module.exports = {
     },
 
     AddToCart (req, res) {
-        Product.findById(req.body.productId)
+        Product.findById(req.body.productId,{
+        })
         .then (foundProduct => {
             const productStock = foundProduct.stock - 1
             if (cart.stock > 0){

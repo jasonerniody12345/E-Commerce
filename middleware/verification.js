@@ -48,10 +48,10 @@ module.exports = {
 
     adminAuthorize (req, res, next) {
 
+        console.log(access.id)
         try {
             User.findById(access.id, {
             })
-            console.log(access.id)
             const access = jwt.verify(req.headers.token, env.process.KEY)
             .then(adminData => {
                 if(adminData.user === access.id){
