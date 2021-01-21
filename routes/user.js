@@ -7,7 +7,7 @@ router.get("/", verification.authenticate, verification.adminAuthorize, userCont
 router.get("/getOne/:id", verification.authenticate, verification.authorize, userController.getOne)
 router.post("/login", userController.login)
 router.post("/register", userController.register)
-router.put("/addToCart/:id", verification.authenticate, verification.authorize, userController.AddToCart)
+router.put("/addToCart/:id", verification.authenticate, userController.AddToCart)
 router.put("/update/:id", verification.authenticate, userController.update)
 router.delete("/delete/:id", verification.authenticate, userController.delete)
 

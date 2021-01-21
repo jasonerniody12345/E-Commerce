@@ -111,10 +111,10 @@ getOne (req, res) {
 
 getByName (req, res) {
     // console.log(req.query.productName)
-    console.log(req.query.name)
-    //model.findOne({name: new RegExp('^'+name+'$', "i")}, function(err, doc) {
+    // console.log("========")
+    // model.findOne({name: new RegExp('^'+name+'$', "i")}, function(err, doc) {
     // Product.find({name: new RegExp(req.query.name, "i")}), query = {description: regex}
-    Product.find({name: /^req.query.name/})
+    Product.find({name: req.query.name})
     .then(getName => {
         console.log("Displaying searched item")
         res.status(201).json({
@@ -129,9 +129,11 @@ getByName (req, res) {
     })
 
 },
-    
+  
 sortByDescend (req, res) {
-    Product.find({}).sort("-price")
+    Product.aggregate([
+            {$sort: {price: -1, posts: 1}}
+        ])
     .then(descend => {
         console.log(descend)
         console.log("Sort price descending order")
@@ -148,7 +150,9 @@ sortByDescend (req, res) {
 },
 
 sortByAscend (req, res) {
-    Product.find({}).sort("price")
+    Product.find({}).aggregate([
+        {$sort: {price: 1}}
+    ])
     .then(ascend => {
         console.log("Displaying ascended price")
         res.status(201).json({

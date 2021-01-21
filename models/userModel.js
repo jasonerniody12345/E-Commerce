@@ -20,9 +20,12 @@ const userSchema = new Schema({
             message: "Please input a valid email"
         }
     },
-    shoppingCart: {
-        type: Number
-    },
+    shoppingCart: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "Product"
+        }
+    ],
     isAdmin: {
         type: Boolean
     },

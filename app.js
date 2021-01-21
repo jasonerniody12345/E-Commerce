@@ -12,7 +12,7 @@ app.use(bodyParser.json())
 app.use(router)
 
 const mongoose  = require("mongoose")
-mongoose.connect("mongodb+srv://jason:jason@cluster0.qd6sq.mongodb.net/E-Commerce?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect(`mongodb+srv://jason:${process.env.MONGO_PASSWORD}@cluster0.qd6sq.mongodb.net/E-Commerce?retryWrites=true&w=majority`, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
 
 const user = require("./routes/user")
 const product = require("./routes/product")

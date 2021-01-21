@@ -8,13 +8,13 @@ module.exports = {
     login (req, res){
         User.findOne({email: req.body.email})
         .then(userLogin => {
-            console.log(typeof(req.body.email))
-            console.log(typeof(req.body.password))
-            console.log(err.errors)
-            console.log(userLogin)
-            console.log(userLogin.password)
+            // console.log(typeof(req.body.email))
+            // console.log(typeof(req.body.password))
+            // console.log(err.errors)
+            // console.log(userLogin)
+            // console.log(userLogin.password)
             if (bcrypt.compareSync(req.body.password, userLogin.password) === true) {
-                const token = jwt.sign ({...userLogin}, env.process.KEY)
+                const token = jwt.sign ({...userLogin}, process.env.KEY)
                 console.log("Sucessfully login")
                 res.status(201).json({
                     message: "Sucessfully login",
@@ -66,9 +66,7 @@ module.exports = {
         })
         .populate("product")
         .then(userOne => {
-            for (var i = 0; i < user.length; i++) {
-                user[i].fullName = user[i].first_name + user[i].last_name
-            }
+            console.log(userOne)
             console.log("Displaying specific user")
             res.status(201).json({
                 message: "Display specific user",
@@ -87,9 +85,8 @@ module.exports = {
         User.create({
             first_name: req.body.first_name,
             last_name: req.body.last_name,
-            password: req.body.password,
-            shoppingCart: req.body.shoppingCart,
-            isAdmin: req.body.isAdmin
+            email: req.body.email,
+            password: req.body.password
         })
         .then(createUser => {
             console.log("Successfully created new user")
@@ -118,9 +115,8 @@ module.exports = {
         User.findByIdAndUpdate(req.params.id, {
             first_name: req.body.first_name,
             last_name: req.body.last_name,
+            email: req.body.email,
             password: req.body.password,
-            shoppingCart: req.body.shoppingCart,
-            isAdmin: req.body.isAdmin
         })
         .then(updateUser => {
             console.log("Successfully updated specific user")
@@ -159,16 +155,22 @@ module.exports = {
         Product.findById(req.body.productId,{
         })
         .then (foundProduct => {
+            //console.log(foundProduct)
             const productStock = foundProduct.stock - 1
-            if (cart.stock > 0){
+            if (foundProduct.stock > 0){
                 User.findByIdAndUpdate (req.params.id, { 
                     $push: {
-                        cart
+                        cart: req.body.productId
                     }
                 })
                 .then (updateUser => {
                     Product.findByIdAndUpdate (req.params.id, {
                         stock : productStock
+                    })
+                    .then(showUser => {
+                        res.status(201).json({
+                            showUser
+                        })
                     })
                 })
             }

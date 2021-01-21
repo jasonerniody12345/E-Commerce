@@ -6,9 +6,9 @@ module.exports = {
 
     authenticate (req, res, next) {
         
+        console.log(req.headers.token)
         try {
-            console.log(key._doc)
-            const key = jwt.verify(req.headers.token, env.process.KEY)
+            const key = jwt.verify(req.headers.token, process.env.KEY)
             req.userID = key._doc._id
             next()
 
@@ -25,9 +25,10 @@ module.exports = {
         try {
             User.findById(req.params.id, {
             })
-            .then(productData => {
-                const access = jwt.verify(req.headers.token, env.process.KEY)
-                if (String(productData.user) === access._doc._id) {
+            .then(foundData => {
+                //console.log(foundData)
+                const access = jwt.verify(req.headers.token, process.env.KEY)
+                if (String(foundData._id) === access._doc._id) {
                     next()
                 } 
                 else {   
@@ -48,13 +49,12 @@ module.exports = {
 
     adminAuthorize (req, res, next) {
 
-        console.log(access.id)
         try {
-            User.findById(access.id, {
+            User.findById(req.userID, {
             })
-            const access = jwt.verify(req.headers.token, env.process.KEY)
             .then(adminData => {
-                if(adminData.user === access.id){
+                // console.log(adminData)
+                if(adminData.isAdmin === true){
                     next()
                 }
                 else {
@@ -63,7 +63,6 @@ module.exports = {
                     })
                 }
             })
-            next()
         }
         catch (err){
             console.log(err)
