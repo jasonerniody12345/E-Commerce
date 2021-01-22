@@ -64,7 +64,7 @@ module.exports = {
     getOne (req, res) {
         User.findById(req.params.id, {
         })
-        .populate("product")
+        .populate("cart")
         .then(userOne => {
             console.log(userOne)
             console.log("Displaying specific user")
@@ -100,6 +100,11 @@ module.exports = {
             if (err.errors.email) {
                 res.status(400).json({
                     message: err.errors.email.message
+                })
+            }
+            else if (err.errors.password) {
+                res.status(400).json({
+                    message: err.errors.password.message
                 })
             }
             else {
@@ -162,14 +167,15 @@ module.exports = {
                     $push: {
                         cart: req.body.productId
                     }
-                })
+                },
+                {new: true})
                 .then (updateUser => {
                     Product.findByIdAndUpdate (req.params.id, {
                         stock : productStock
                     })
-                    .then(showUser => {
+                    .then(updatedProduct => {
                         res.status(201).json({
-                            showUser
+                            updateUser
                         })
                     })
                 })

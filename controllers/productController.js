@@ -132,7 +132,7 @@ getByName (req, res) {
   
 sortByDescend (req, res) {
     Product.aggregate([
-            {$sort: {price: -1, posts: 1}}
+            {$sort: {price: -1}}
         ])
     .then(descend => {
         console.log(descend)
@@ -150,7 +150,7 @@ sortByDescend (req, res) {
 },
 
 sortByAscend (req, res) {
-    Product.find({}).aggregate([
+    Product.aggregate([
         {$sort: {price: 1}}
     ])
     .then(ascend => {

@@ -20,7 +20,7 @@ const userSchema = new Schema({
             message: "Please input a valid email"
         }
     },
-    shoppingCart: [
+    cart: [
         {
             type: Schema.Types.ObjectId,
             ref: "Product"
