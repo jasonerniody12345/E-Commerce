@@ -6,50 +6,45 @@ const bcrypt = require("bcrypt")
 module.exports = {
 
     login (req, res){
-    User.findOne({email: req.body.email})
-        .then(userEmail => {
-            if (req.body.email === userEmail) {
-                User.findOne({email: req.body.email})
-                .then(userLogin => {
-                    // console.log(typeof(req.body.email))
-                    // console.log(typeof(req.body.password))
-                    // console.log(err.errors)
-                    // console.log(userLogin)
-                    // console.log(userLogin.password)
-                    if (bcrypt.compareSync(req.body.password, userLogin.password) === true) {
-                        const token = jwt.sign ({...userLogin}, process.env.KEY)
-                        console.log("Sucessfully login")
-                        res.status(201).json({
-                            message: "Sucessfully login",
-                            accessToken: token
-                        })
-                    }
-                    else {
-                        res.status(401).json({
-                            message: "password or email is invalid"
-                        })
-                     }
-                })
-                .catch(err => {
-                    console.log(err)
-                    if (err.errors.email){
-                        res.status(400).json({
-                            message: err.errors.email.message
-                        })
-                    }
-                    else if (err.errors.password) {
-                        res.status(400).json({
-                            message: err.errors.password.message
-                        })
-                    }
-                })
-            }
-            else {
-                res.status(400).json({
-                    message: "Email didnt exist"
-                })
-            }
-        })
+        User.findOne({email: req.body.email})
+            .then(userEmail => {
+                if (req.body.email === userEmail.email) {
+                    User.findOne({email: req.body.email})
+                    .then(userLogin => {
+                        if (bcrypt.compareSync(req.body.password, userLogin.password) === true) {
+                            const token = jwt.sign ({...userLogin}, process.env.KEY)
+                            console.log("Sucessfully login")
+                            res.status(201).json({
+                                message: "Sucessfully login",
+                                accessToken: token
+                            })
+                        }
+                        else {
+                            res.status(401).json({
+                                message: "password or email is invalid"
+                            })
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        if (err.errors.email){
+                            res.status(400).json({
+                                message: err.errors.email.message
+                            })
+                        }
+                        else if (err.errors.password) {
+                            res.status(400).json({
+                                message: err.errors.password.message
+                            })
+                        }
+                    })
+                }
+                else {
+                    res.status(400).json({
+                        message: "Email didnt exist"
+                    })
+                }
+            })
     },
 
         get (req, res) {
@@ -91,49 +86,49 @@ module.exports = {
     },
 
     register (req, res) {
-    User.find({email: req.query.email})
-        .then(getEmail => {
-            if (req.query.email === getEmail) {
-                User.create({
-                    first_name: req.body.first_name,
-                    last_name: req.body.last_name,
-                    email: req.body.email,
-                    password: req.body.password
-                })
-                .then(createUser => {
-                    console.log("Successfully created new user")
-                    res.status(201).json({
-                        message: "Successfully created new user",
-                        createUser
+        User.find({email: req.body.email})
+            .then(getEmail => {
+                if (getEmail.length === 0) {
+                    User.create({
+                        first_name: req.body.first_name,
+                        last_name: req.body.last_name,
+                        email: req.body.email,
+                        password: req.body.password
                     })
-                })
-                .catch(err => {
-                    console.log(err)
-                    if (err.errors.email) {
-                        res.status(400).json({
-                            message: err.errors.email.message
+                    .then(createUser => {
+                        console.log("Successfully created new user")
+                        res.status(201).json({
+                            message: "Successfully created new user",
+                            createUser
                         })
-                    }
-                    else if (err.errors.password) {
-                        res.status(400).json({
-                            message: err.errors.password.message
-                        })
-                    }
-                    else {
+                    })
+                    .catch(err => {
                         console.log(err)
-                        res.status(500).json({
-                            message: "Internal server error"
-                        })
-                    }
-                })
-            }
-            else {
-                console.log("Email is in used, please choose another email")
-                res.status(400).json({
-                    message: "Email is in used, please choose another email"
-                })
-            }
-        })
+                        if (err.errors.email) {
+                            res.status(400).json({
+                                message: err.errors.email.message
+                            })
+                        }
+                        else if (err.errors.password) {
+                            res.status(400).json({
+                                message: err.errors.password.message
+                            })
+                        }
+                        else {
+                            console.log(err)
+                            res.status(500).json({
+                                message: "Internal server error"
+                            })
+                        }
+                    })
+                }
+                else {
+                    console.log("Email is in used, please choose another email")
+                    res.status(400).json({
+                        message: "Email is in used, please choose another email"
+                    })
+                }
+            })
     },
         
     update (req, res) {
@@ -180,15 +175,9 @@ module.exports = {
         Product.findById(req.body.productId,{
         })
         .then (foundProduct => {
-            //console.log(foundProduct)
+            //console.log("====", foundProduct)
             const productStock = foundProduct.stock - 1
-            if (foundProduct === 0) {
-                console.log("Product does not exist")
-                res.status(400).json({
-                    message: "Product does not exist"
-                })
-            }
-            else if (foundProduct.stock > 0){
+            if (foundProduct.stock > 0){
                 User.findByIdAndUpdate (req.params.id, { 
                     $push: {
                         cart: req.body.productId
@@ -196,6 +185,8 @@ module.exports = {
                 },
                 {new: true})
                 .then (updateUser => {
+                    console.log(updateUser)
+                    //simpen di variable kalo ada
                     Product.findByIdAndUpdate (req.params.id, {
                         stock : productStock
                     })
@@ -214,9 +205,18 @@ module.exports = {
         })
         .catch(err => {
             console.log(err)
-            res.status(500).json({
-                message: "Internal server error"
-            })
+            if (err.kind === "ObjectId") {
+                console.log("Product does not exists")
+                res.status(401).json({
+                    message: "Product does not exists"
+                })
+            }
+            else {
+                res.status(500).json({
+                    message: "Internal server error"
+                })
+                
+            }
         })
     }
 

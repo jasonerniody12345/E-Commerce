@@ -26,7 +26,6 @@ module.exports = {
             User.findById(req.params.id, {
             })
             .then(foundData => {
-                //console.log(foundData)
                 const access = jwt.verify(req.headers.token, process.env.KEY)
                 if (String(foundData._id) === access._doc._id) {
                     next()

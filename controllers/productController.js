@@ -64,7 +64,6 @@ module.exports = {
             console.log("succesfully deleted item")
             res.status(201).json({
                 message: "sucessfully deleted item",
-                deleteItem
             })
         })
         .catch(err => {
