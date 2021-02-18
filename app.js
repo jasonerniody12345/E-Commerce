@@ -20,6 +20,6 @@ const product = require("./routes/product")
 app.use("/users", user)
 app.use("/products", product)
 
-app.listen (port, () => {
+app.listen (process.env.PORT || 3000 , () => {
     console.log("Listening" + " " + port)
 })
