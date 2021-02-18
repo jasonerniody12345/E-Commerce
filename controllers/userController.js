@@ -176,32 +176,40 @@ module.exports = {
         })
         .then (foundProduct => {
             //console.log("====", foundProduct)
-            const productStock = foundProduct.stock - 1
-            if (foundProduct.stock > 0){
-                User.findByIdAndUpdate (req.params.id, { 
-                    $push: {
-                        cart: req.body.productId
-                    }
-                },
-                {new: true})
-                .then (updateUser => {
-                    console.log(updateUser)
-                    //simpen di variable kalo ada
-                    Product.findByIdAndUpdate (req.params.id, {
-                        stock : productStock
-                    })
-                    .then(updatedProduct => {
-                        res.status(201).json({
-                            updateUser
+            if(foundProduct === null){
+                res.status(401).json({
+                    message: "Product not found"
+                })
+            }
+            // else {
+                else if (foundProduct.stock > 0){
+                    const productStock = foundProduct.stock - 1
+                    User.findByIdAndUpdate (req.params.id, { 
+                        $push: {
+                            cart: req.body.productId
+                        }
+                    },
+                    {new: true})
+                    .then (updateUser => {
+                        console.log(updateUser)
+                        //simpen di variable kalo ada
+                        Product.findByIdAndUpdate (req.body.productId, {
+                            stock : productStock
+                        })
+                        .then(updatedProduct => {
+                            res.status(201).json({
+                                updateUser
+                            })
                         })
                     })
-                })
-            }
-            else {
-                res.status(401).json({
-                    message: "Product is out of stock"
-                })
-            }
+                }
+                else {
+                    res.status(401).json({
+                        message: "Product is out of stock"
+                    })
+                }
+        //    }
+
         })
         .catch(err => {
             console.log(err)
@@ -214,8 +222,7 @@ module.exports = {
             else {
                 res.status(500).json({
                     message: "Internal server error"
-                })
-                
+                })          
             }
         })
     }

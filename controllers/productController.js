@@ -80,7 +80,7 @@ module.exports = {
         .then(getItem => {
             console.log("Displaying all listed item")
             res.status(201).json({
-                getItem
+                allProduct: getItem
             })
         })
         .catch(err => {
