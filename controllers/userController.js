@@ -5,64 +5,195 @@ const bcrypt = require("bcrypt")
 
 module.exports = {
 
-    login (req, res){
-        User.findOne({email: req.body.email})
-            .then(userEmail => {
-                if (req.body.email === userEmail.email) {
-                    User.findOne({email: req.body.email})
-                    .then(userLogin => {
-                        if (bcrypt.compareSync(req.body.password, userLogin.password) === true) {
-                            const token = jwt.sign ({...userLogin}, process.env.KEY)
-                            console.log("Sucessfully login")
-                            res.status(201).json({
-                                message: "Sucessfully login",
-                                accessToken: token
-                            })
-                        }
-                        else {
-                            res.status(401).json({
-                                message: "password or email is invalid"
-                            })
-                        }
-                    })
-                    .catch(err => {
-                        console.log(err)
-                        if (err.errors.email){
-                            res.status(400).json({
-                                message: err.errors.email.message
-                            })
-                        }
-                        else if (err.errors.password) {
-                            res.status(400).json({
-                                message: err.errors.password.message
-                            })
-                        }
-                    })
-                }
-                else {
-                    res.status(400).json({
-                        message: "Email didnt exist"
-                    })
-                }
-            })
-    },
+    // login (req, res){
+    //     User.findOne({email: req.body.email})
+    //         .then(userEmail => {
+    //             if (req.body.email === userEmail.email) {
+    //                 User.findOne({email: req.body.email})
+    //                 .then(userLogin => {
+    //                     if (bcrypt.compareSync(req.body.password, userLogin.password) === true) {
+    //                         const token = jwt.sign ({...userLogin}, process.env.KEY)
+    //                         console.log("Sucessfully login")
+    //                         res.status(201).json({
+    //                             message: "Sucessfully login",
+    //                             accessToken: token
+    //                         })
+    //                     }
+    //                     else {
+    //                         res.status(401).json({
+    //                             message: "password or email is invalid"
+    //                         })
+    //                     }
+    //                 })
+    //                 .catch(err => {
+    //                     console.log(err)
+    //                     if (err.errors.email){
+    //                         res.status(400).json({
+    //                             message: err.errors.email.message
+    //                         })
+    //                     }
+    //                     else if (err.errors.password) {
+    //                         res.status(400).json({
+    //                             message: err.errors.password.message
+    //                         })
+    //                     }
+    //                 })
+    //             }
+    //             else {
+    //                 res.status(400).json({
+    //                     message: "Email didnt exist"
+    //                 })
+    //             }
+    //         })
+    // },
 
-        get (req, res) {
-            User.find({
-            })
-            .then(user => {
-                console.log("Displaying all the registered user")
-                res.status(201).json({
-                    message: "Displaying all the registered user",
-                    user
+
+    async login (req, res) {
+        try {
+                let userEmail = await User.findOne({email: req.body.email})
+                if (req.body.email === userEmail.email) {
+                    let userLogin = await User.findOne({email: req.body.email})
+                    if (bcrypt.compareSync(req.body.password, userLogin.password) === true) {
+                        const token = jwt.sign ({...userLogin}, process.env.KEY)
+                        console.log("Sucessfully login")
+                        res.status(201).json({
+                            message: "Sucessfully login",
+                            accessToken: token
+                        })
+                    }
+                    else {
+                        res.status(401).json({
+                        message: "password or email is invalid"
+                    })
+                }
+            }
+            else {
+                res.status(400).json({
+                    message: "Email didnt exist"
                 })
-            })
-            .catch(err => {
+            }
+        }
+        catch (err) {
+            console.log(err)
+            if (err.errors.email){
+                res.status(400).json({
+                message: err.errors.email.message
+                })
+            }
+            else if (err.errors.password) {
+                res.status(400).json({
+                message: err.errors.password.message
+                })
+            }
+        }
+    },
+    
+    // register (req, res) {
+    //     User.find({email: req.body.email})
+    //         .then(getEmail => {
+    //             if (getEmail.length === 0) {
+    //                 User.create({
+    //                     first_name: req.body.first_name,
+    //                     last_name: req.body.last_name,
+    //                     email: req.body.email,
+    //                     password: req.body.password
+    //                 })
+    //                 .then(createUser => {
+    //                     console.log("Successfully created new user")
+    //                     res.status(201).json({
+    //                         message: "Successfully created new user",
+    //                         createUser
+    //                     })
+    //                 })
+    //                 .catch(err => {
+    //                     console.log(err)
+    //                     if (err.errors.email) {
+    //                         res.status(400).json({
+    //                             message: err.errors.email.message
+    //                         })
+    //                     }
+    //                     else if (err.errors.password) {
+    //                         res.status(400).json({
+    //                             message: err.errors.password.message
+    //                         })
+    //                     }
+    //                     else {
+    //                         console.log(err)
+    //                         res.status(500).json({
+    //                             message: "Internal server error"
+    //                         })
+    //                     }
+    //                 })
+    //             }
+    //             else {
+    //                 console.log("Email is in used, please choose another email")
+    //                 res.status(400).json({
+    //                     message: "Email is in used, please choose another email"
+    //                 })
+    //             }
+    //         })
+    // },
+
+    async register (req, res) {
+        try {
+            let getEmail = await User.find({email: req.body.email}) 
+            if (getEmail.length === 0) {
+                let createUser = await User.create({
+                    first_name: req.body.first_name,
+                    last_name: req.body.last_name,
+                    email: req.body.email,
+                    password: req.body.password
+                })
+                console.log("Successfully created new user")
+                res.status(201).json({
+                    message: "Successfully created new user",
+                    createUser
+                })
+            }
+            else {
+                console.log("Email is in used, please choose another email")
+                res.status(400).json({
+                    message: "Email is in used, please choose another email"
+                })
+            }
+        }
+        catch (err) {
+            console.log(err)
+            if (err.errors.email) {
+                res.status(400).json({
+                    message: err.errors.email.message
+                })
+            }
+            else if (err.errors.password) {
+                res.status(400).json({
+                    message: err.errors.password.message
+                })
+            }
+            else {
                 console.log(err)
                 res.status(500).json({
                     message: "Internal server error"
                 })
+            }
+        }
+    },
+
+    get (req, res) {
+        User.find({
+        })
+        .then(user => {
+            console.log("Displaying all the registered user")
+            res.status(201).json({
+                message: "Displaying all the registered user",
+                user
             })
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                message: "Internal server error"
+            })
+        })
     },
 
     getOne (req, res) {
@@ -85,51 +216,6 @@ module.exports = {
         })
     },
 
-    register (req, res) {
-        User.find({email: req.body.email})
-            .then(getEmail => {
-                if (getEmail.length === 0) {
-                    User.create({
-                        first_name: req.body.first_name,
-                        last_name: req.body.last_name,
-                        email: req.body.email,
-                        password: req.body.password
-                    })
-                    .then(createUser => {
-                        console.log("Successfully created new user")
-                        res.status(201).json({
-                            message: "Successfully created new user",
-                            createUser
-                        })
-                    })
-                    .catch(err => {
-                        console.log(err)
-                        if (err.errors.email) {
-                            res.status(400).json({
-                                message: err.errors.email.message
-                            })
-                        }
-                        else if (err.errors.password) {
-                            res.status(400).json({
-                                message: err.errors.password.message
-                            })
-                        }
-                        else {
-                            console.log(err)
-                            res.status(500).json({
-                                message: "Internal server error"
-                            })
-                        }
-                    })
-                }
-                else {
-                    console.log("Email is in used, please choose another email")
-                    res.status(400).json({
-                        message: "Email is in used, please choose another email"
-                    })
-                }
-            })
-    },
         
     update (req, res) {
         User.findByIdAndUpdate(req.params.id, {

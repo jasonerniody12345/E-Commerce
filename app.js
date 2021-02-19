@@ -5,7 +5,7 @@ const bodyParser = require("body-parser")
 const express = require("express")
 const app = express()
 const router = express.Router()
-const port = 8080
+const port = 8800
 
 app.use(bodyParser.urlencoded({ extended: false}))
 app.use(bodyParser.json())
@@ -20,6 +20,8 @@ const product = require("./routes/product")
 app.use("/users", user)
 app.use("/products", product)
 
-app.listen (process.env.PORT || 3000 , () => {
+//tambin process.PORT buat heroku
+//tambain di package.json scripts "start node app.js / nodemon "
+app.listen (process.env.PORT || 8800 , () => {
     console.log("Listening" + " " + port)
 })
