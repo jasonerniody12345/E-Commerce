@@ -49,9 +49,11 @@ module.exports = {
 
 
     async login (req, res) {
+        // for handlinng null pinter exception tambahin userEmail && didepan if (req.body.email === userEmail.email)
+        // shortcut check null if(!userEmail){console.log("email salah")}
         try {
                 let userEmail = await User.findOne({email: req.body.email})
-                if (req.body.email === userEmail.email) {
+                if (userEmail && req.body.email === userEmail.email) {
                     let userLogin = await User.findOne({email: req.body.email})
                     if (bcrypt.compareSync(req.body.password, userLogin.password) === true) {
                         const token = jwt.sign ({...userLogin}, process.env.KEY)

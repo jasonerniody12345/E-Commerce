@@ -15,7 +15,7 @@ const userSchema = new Schema({
         type: String,
         validate: {
             validator: function (email){
-                email.length > 5
+              return email.length > 5
             },
             message: "Please input a valid email"
         }
