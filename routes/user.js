@@ -8,7 +8,9 @@ router.get("/getOne/:id", verification.authenticate, verification.authorize, use
 router.post("/login", userController.login)
 router.post("/register", userController.register)
 router.put("/addToCart/:id", verification.authenticate, verification.authorize,  userController.AddToCart)
+router.put("/removeFromCart/:id", verification.authenticate, verification.authorize,  userController.AddToCart)
 router.put("/update/:id", verification.authenticate, verification.authorize, userController.update)
 router.delete("/delete/:id", verification.authenticate, verification.authorize, userController.delete)
+router.post("/verifyToken", userController.verify)
 
 module.exports = router

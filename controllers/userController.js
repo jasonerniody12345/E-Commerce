@@ -271,7 +271,6 @@ module.exports = {
             }
             // else {
                 else if (foundProduct.stock > 0){
-                    const productStock = foundProduct.stock - 1
                     User.findByIdAndUpdate (req.params.id, { 
                         $push: {
                             cart: req.body.productId
@@ -280,14 +279,8 @@ module.exports = {
                     {new: true})
                     .then (updateUser => {
                         console.log(updateUser)
-                        //simpen di variable kalo ada
-                        Product.findByIdAndUpdate (req.body.productId, {
-                            stock : productStock
-                        })
-                        .then(updatedProduct => {
-                            res.status(201).json({
-                                updateUser
-                            })
+                        res.status(201).json({
+                            updateUser
                         })
                     })
                 }
@@ -313,6 +306,61 @@ module.exports = {
                 })          
             }
         })
+    },
+
+    removeFromCart(req, res) {
+        Product.findById(req.body.productId,{
+        })
+        .then (foundProduct => {
+            //console.log("====", foundProduct)
+            if(foundProduct === null){
+                res.status(401).json({
+                    message: "Product not found"
+                })
+            }
+            else {
+                User.findByIdAndUpdate (req.params.id, { 
+                    $pull: {
+                        cart: req.body.productId
+                    }
+                },
+                {new: true})
+                .then (updateUser => {
+                    console.log(updateUser)
+                    res.status(201).json({
+                        updateUser
+                    })
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            if (err.kind === "ObjectId") {
+                console.log("Product does not exists")
+                res.status(401).json({
+                    message: "Product does not exists"
+                })
+            }
+            else {
+                res.status(500).json({
+                    message: "Internal server error"
+                })          
+            }
+        })
+    },
+
+    verify (req, res) {
+        try {
+            const key = jwt.verify(req.headers.token, process.env.KEY)
+            res.status(200).json({
+                message: "authenticated"
+            })
+        }
+        catch (err) {
+            res.status(401).json({
+                message: "unauthenticated"
+            })
+        }
     }
 
 }

@@ -16,9 +16,11 @@ mongoose.connect(`mongodb+srv://jason:${process.env.MONGO_PASSWORD}@cluster0.qd6
 
 const user = require("./routes/user")
 const product = require("./routes/product")
+const transaction = require("./routes/transaction")
 
 app.use("/users", user)
 app.use("/products", product)
+app.use("/transactions", transaction)
 
 //tambin process.PORT buat heroku
 //tambain di package.json scripts "start node app.js / nodemon "
