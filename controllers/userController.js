@@ -1,5 +1,7 @@
 const User = require("../models/userModel")
 const Product = require("../models/productModel")
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt")
 
@@ -259,6 +261,79 @@ module.exports = {
         })
     },
 
+    async forgotPassword(req, res) {
+        try {
+            const user = await User.findOne({ email: req.body.email });
+            
+            if (!user) {
+                return res.status(404).json({ message: "Email not found" });
+            }
+
+            // Create a reset token
+            const resetToken = crypto.randomBytes(32).toString('hex');
+            const resetPasswordExpiration = Date.now() + 3600000; // Token expires in 1 hour
+
+            // Save the reset token and its expiration date in the user document
+            user.resetPasswordToken = resetToken;
+            user.resetPasswordExpiration = resetPasswordExpiration;
+            await user.save();
+
+            // Send reset email
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: 'your-email@gmail.com', // Replace with your email
+                    pass: 'your-email-password',  // Replace with your email password or use environment variables
+                },
+            });
+
+            const resetURL = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+            const mailOptions = {
+                to: user.email,
+                subject: 'Password Reset Request',
+                html: `<p>We received a request to reset your password. Click <a href="${resetURL}">here</a> to reset your password.</p><p>If you did not request a password reset, please ignore this email.</p>`
+            };
+
+            transporter.sendMail(mailOptions, (err, info) => {
+                if (err) {
+                    return res.status(500).json({ message: 'Error sending email', error: err });
+                }
+                res.status(200).json({ message: 'Password reset email sent successfully' });
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    },
+
+    async resetPassword(req, res) {
+        try {
+            const { token, newPassword } = req.body;
+
+            const user = await User.findOne({
+                resetPasswordToken: token,
+                resetPasswordExpiration: { $gt: Date.now() } // Ensure token hasn't expired
+            });
+
+            if (!user) {
+                return res.status(400).json({ message: 'Invalid or expired token' });
+            }
+
+            // Hash the new password and update the user document
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            user.password = hashedPassword;
+            user.resetPasswordToken = undefined; // Remove reset token after use
+            user.resetPasswordExpiration = undefined; // Remove expiration date
+            await user.save();
+
+            res.status(200).json({ message: 'Password has been reset successfully' });
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    },
+
     AddToCart (req, res) {
         Product.findById(req.body.productId,{
         })
@@ -269,7 +344,6 @@ module.exports = {
                     message: "Product not found"
                 })
             }
-            // else {
                 else if (foundProduct.stock > 0){
                     User.findByIdAndUpdate (req.params.id, { 
                         $push: {
@@ -289,8 +363,6 @@ module.exports = {
                         message: "Product is out of stock"
                     })
                 }
-        //    }
-
         })
         .catch(err => {
             console.log(err)
@@ -361,6 +433,6 @@ module.exports = {
                 message: "unauthenticated"
             })
         }
-    }
+    },
 
 }

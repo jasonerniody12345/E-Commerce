@@ -3,12 +3,12 @@ const { Schema } = mongoose
 
 const transactionSchema = new Schema({
     userId : {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
-    product:[
+    cart:[
         {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "Product"
         }
     ],
@@ -34,7 +34,7 @@ const transactionSchema = new Schema({
     },
     totalPrice: {
         type: Number,
-        required: true,
+        // required: true,
     },
     createdAt: {
         type: Date,

@@ -9,7 +9,8 @@ module.exports = {
             price: req.body.price,
             description: req.body.description,
             stock: req.body.stock,
-            image: req.body.image
+            image: req.body.image,
+            sold: req.body.sold
         })
         .then(createItem => {
             console.log("sucessfully registered new item")
