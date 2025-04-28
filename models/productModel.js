@@ -1,43 +1,61 @@
-const mongoose = require("mongoose")
-const { Schema } = mongoose 
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
 const productSchema = new Schema({
-    name : {
+    user_id: {
         type: String,
-        required: true
+        // required: true
+    },
+    title: {
+        type: String,
+        // required: true
     },
     price: {
         type: Number,
-        required: true
+        // required: true
+    },
+    location: {
+        type: String,
+        // required: true
     },
     description: {
         type: String,
-        required: true,
+        // required: true,
         validate: {
-            validator: function (desc){
-                desc.length > 10
+            validator: function (desc) {
+                return desc.length > 10; // <-- added return
             },
-            message: "Description is too short"
-        }
+            message: "Description is too short",
+        },
+    },
+    specification: {
+        type: String,
+        // required: true,
+        validate: {
+            validator: function (spec) {
+                return spec.length > 5; // <-- added return
+            },
+            message: "Specification is too short",
+        },
+    },
+    sold: {
+        type: Boolean,
+        default: false,
+    },
+    property: {
+        type: Boolean,
+        default: false,
+    },
+    liked: {
+        type: Boolean,
+        default: false,
     },
     stock: {
         type: Number,
-        required: true
-    },
-    sold: { 
-        type: Boolean, default: false 
     },
     image: {
-        type: String,
-        required: true
+        preview: { type: String, },
     },
-    price: {
-        type: Number,
-        required: true
-    }
-    
-})
+});
 
-const Product = mongoose.model("Product", productSchema)
-
-module.exports = Product
+module.exports = mongoose.model("Product", productSchema);
